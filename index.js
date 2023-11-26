@@ -6,7 +6,16 @@ class Product {
  }
 
  getInfo() {
-  return `${this.name} - ${this.category} - $${this.price}`;
+  return (
+   `${this.name} - ${this.category} - $${this.price}` +
+   (this.brand ? ` - Brand: ${this.brand}` : "") +
+   (this.processor ? ` - Processor: ${this.processor}` : "") +
+   (this.ram ? ` - RAM: ${this.ram}` : "") +
+   (this.brewingMethod ? ` - Brewing Method: ${this.brewingMethod}` : "") +
+   (this.capacity ? ` - Capacity: ${this.capacity}` : "") +
+   (this.gender ? ` - Gender: ${this.gender}` : "") +
+   (this.size ? ` - Size: ${this.size}` : "")
+  );
  }
 }
 
@@ -37,8 +46,52 @@ class ProductBuilder {
  }
 }
 
+class LaptopBuilder extends ProductBuilder {
+ setBrand(brand) {
+  this.product.brand = brand;
+  return this;
+ }
+
+ setProcessor(processor) {
+  this.product.processor = processor;
+  return this;
+ }
+
+ setRAM(ram) {
+  this.product.ram = ram;
+  return this;
+ }
+}
+
+class CoffeeMakerBuilder extends ProductBuilder {
+ setBrewingMethod(brewingMethod) {
+  this.product.brewingMethod = brewingMethod;
+  return this;
+ }
+
+ setCapacity(capacity) {
+  this.product.capacity = capacity;
+  return this;
+ }
+}
+
+class RunningShoesBuilder extends ProductBuilder {
+ setGender(gender) {
+  this.product.gender = gender;
+  return this;
+ }
+
+ setSize(size) {
+  this.product.size = size;
+  return this;
+ }
+}
+
 class Director {
  constructor(builder) {
+  this.builder = builder;
+ }
+ setBuilder(builder) {
   this.builder = builder;
  }
 
@@ -49,25 +102,75 @@ class Director {
    .setCategory(category)
    .build();
  }
+ constructLaptop(category, brand, processor, ram, price) {
+  return this.builder
+   .setName("Laptop")
+   .setCategory(category)
+   .setBrand(brand)
+   .setProcessor(processor)
+   .setRAM(ram)
+   .setPrice(price)
+   .build();
+ }
+
+ constructCoffeeMaker(category, brewingMethod, capacity, price) {
+  return this.builder
+   .setName("Coffee Maker")
+   .setCategory(category)
+   .setBrewingMethod(brewingMethod)
+   .setCapacity(capacity)
+   .setPrice(price)
+   .build();
+ }
+
+ constructRunningShoes(category, gender, size, price) {
+  return this.builder
+   .setName("Running Shoes")
+   .setCategory(category)
+   .setGender(gender)
+   .setSize(size)
+   .setPrice(price)
+   .build();
+ }
 }
 
-const generateProducts = (configArray) => {
- const builder = new ProductBuilder();
- const director = new Director(builder);
- const res = configArray.map((config) =>
-  director.constructProduct(
-   config.name || "",
-   config.price || 0,
-   config.category || ""
-  )
+const createData = () => {
+ const laptopBuilder = new LaptopBuilder();
+ const coffeeMakerBuilder = new CoffeeMakerBuilder();
+ const runningShoesBuilder = new RunningShoesBuilder();
+ const director = new Director();
+
+ director.setBuilder(laptopBuilder);
+ const laptop = director.constructLaptop(
+  "Technics",
+  "Dell",
+  "Intel i7",
+  "16GB",
+  "100$"
  );
- res.forEach((product) => console.log(product.getInfo()));
- return res;
+
+ director.setBuilder(coffeeMakerBuilder);
+ const coffeeMaker = director.constructCoffeeMaker(
+  "Device for a coffee shop",
+  "Drip",
+  "8 cups",
+  "100$"
+ );
+
+ director.setBuilder(runningShoesBuilder);
+ const runningShoes = director.constructRunningShoes(
+  "Clothes",
+  "Men",
+  "10",
+  "100$"
+ );
+
+ const data = [laptop, coffeeMaker, runningShoes];
+ data.forEach((item) => {
+  console.log(item.getInfo());
+ });
+
+ return data;
 };
 
-const productConfigs = [
- { name: "Laptop", price: 1200, category: "Electronics" },
- { name: "Coffee Maker", price: 100, category: "Appliances" },
- { name: "Running Shoes", price: 80, category: "Footwear" },
-];
-generateProducts(productConfigs);
+createData();
